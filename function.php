@@ -8,19 +8,18 @@ function fetch_multi_row($kwd, $slimit){
         $limit = $slimit;
         $setLimit .= ' LIMIT :offset, :limit ';
       }
-
       if(!empty($kwd))
       {
         if(!empty($condition)) $condition .= ' AND ';
-        $where .= ' (username LIKE :kwd OR name LIKE :kwd) ';
+        $condition .= ' (username LIKE :kwd OR name LIKE :kwd) ';
       }
-
-      if(!empty($where)){ $condition .= 'where'; }
+      if($condition) $where .= ' WHERE ';
 
        $sql = 'SELECT username, id, mongo_id,
                (SELECT COUNT(*) FROM `reporter`) AS total
-               FROM `reporter` ORDER BY id ASC '.$setLimit;
+               FROM `reporter` '.$where.$condition.' ORDER BY id ASC '.$setLimit;
        $stmt = $connected->prepare($sql);
+       // echo $sql;
        if(!empty($kwd)) $stmt->bindValue(':kwd', '%'. $kwd .'%', PDO::PARAM_STR);
        if(!empty($srid)) $stmt->bindValue(':srid', (int)$srid, PDO::PARAM_INT);
        if(!empty($slimit))
